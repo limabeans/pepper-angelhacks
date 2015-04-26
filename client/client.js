@@ -1,3 +1,5 @@
+Meteor.subscribe('users');
+
 /**
  * Templates
  */
@@ -7,9 +9,17 @@ Template.list_messages.helpers({
   }
 });
 
+Template.base.helpers({
+  userLoggedIn: function() {
+    return Meteor.user();
+  }
+});
+
 Template.list_pairs.helpers({
   queryPairs: function() {
-    return Pairs.find({}); 
+    var user = Meteor.user().emails[0].address;
+    //Make sure that only your Pairs show up!
+    return Pairs.find({$or:[{person1:user},{person2:user}]}); 
   }
 });
 
@@ -22,13 +32,18 @@ Template.list_pairs.events = {
   }
 };
 
+Template.pair.helpers({
+  userLoggedIn: function() {
+    return Meteor.user();
+  }
+});
+
+
 Template.pair.events = {
   'keydown input#message': function(event) {
     if(event.which == 13) {
       var msg = document.getElementById('message');
       var user = Meteor.user().emails[0].address;
-      console.log(this);
-      console.log(this.messages);
       Pairs.update(
         {_id: this._id},
         {
@@ -56,12 +71,26 @@ Template.create_pair.events = {
       var thisEmail = Meteor.user().emails[0].address;
       var friendEmail = pair.value;
       if(friendEmail != '') {
-        Pairs.insert({
-          person1: thisEmail,
-          person2: friendEmail,
-          messages: []
+        var verify = Meteor.users.findOne({
+          emails:[{
+            address:friendEmail,
+            verified: false
+          }] //Need an $or
         });
-        pair.value = '';
+        if(!verify) {
+          alert('doesnt exist!');
+        } else {
+          if(thisEmail === friendEmail) {
+            alert('cant chat with yourself!');
+          } else {
+            Pairs.insert({
+              person1: thisEmail,
+              person2: friendEmail,
+              messages: []
+            });
+            pair.value = '';
+          }
+        }
       }
     }
   }
@@ -96,3 +125,11 @@ Template.send_message.events = {
     }
   }
 }
+
+
+Template.list_users.helpers({
+  queryUsers: function() {
+    return Meteor.users.find({});
+  }
+});
+

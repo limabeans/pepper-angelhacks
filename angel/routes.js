@@ -12,6 +12,7 @@ Router.route('/', function() {
 Router.route('/pair/:_id', function() {
   this.render('pair', {
     data: function() {
+      console.log(this);
       return Pairs.findOne({_id: this.params._id});
     }
   });

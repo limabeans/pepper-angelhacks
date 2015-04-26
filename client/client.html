@@ -10,37 +10,32 @@
 <body>
 </body>
 
-
-
 <template name="base">
   <div class="container">
     {{> loginButtons align="right"}}<br>
-
     <div class="row">
       <div class="col s6">
         <h1>Pepper</h1>
         <h5>Seamless chatting within the browser. </h5>
+        {{> list_users}}
+        {{#if userLoggedIn}}
         {{> create_pair }}
         {{> list_pairs }}
+        {{/if}}
       </div>
       <div class="col s6">
         {{> list_messages }}
+        {{#if userLoggedIn}}
         {{> send_message }}
+        {{/if}}
       </div>
     </div>
   </div>
 </template>
 
 
-<template name="list_pairs">
-  <ul>
-    {{#each queryPairs}}
-    <li>* <a href="/pair/{{_id}}">{{person1}} and {{person2}}</a></li>
-    {{/each}}
-  </ul>
-</template>
-
 <template name="pair">
+  {{#if currentUser}}
   <div class="container">
     {{> loginButtons align="right"}}<br>
 
@@ -48,11 +43,12 @@
       <div class="col s6">
         <h1>Pepper</h1>
         <h5>Seamless chatting within the browser. </h5>
+        {{> list_users}}
         {{> create_pair }}
         {{> list_pairs }}
       </div>
       <div class="col s6">
-        convo with {{person1}} and {{person2}}!!
+        <h3>convo with {{person1}} and {{person2}}!!</h3>
         <ul>
           {{#each messages}}
           <li><b>{{sender}}:</b> {{message}} </li>
@@ -62,7 +58,23 @@
       </div>
     </div>
   </div>
+  {{else}}
+  {{> base}}
+  {{/if}}
 </template>
+
+
+
+<template name="list_pairs">
+  <h3>Your pairs.</h3>
+  {{#unless queryPairs}}<h5>You have no pairs!</h5>{{/unless}}
+  <ul>
+    {{#each queryPairs}}
+    <li>* <a href="/pair/{{_id}}">{{person1}} and {{person2}}</a></li>
+    {{/each}}
+  </ul>
+</template>
+
 
 <template name="create_pair">
   <p>Pair up with a friend:
@@ -84,3 +96,14 @@
   {{/each}}
 </template>
 
+
+<template name="list_users">
+  <h4>People using paper</h4>
+  <ul>
+    {{#each queryUsers}}
+    {{#each emails}}
+    <li>{{address}}</li>
+    {{/each}}
+    {{/each}}
+  </ul>
+</template>
